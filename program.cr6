@@ -88,7 +88,7 @@ Units ugga_ringdown0 = usec
 Units ugga_ringdown1 = usec
 Units ugga_fit_flag = arb
 
-Dim nmea_sentence(2) As String * 90
+Dim nmea_sentence(2) As String * 100
 Dim gps_data(15)
 Alias gps_data(1) = latitude_deg              'Degrees latitude (+ = East; - = West)
 Alias gps_data(2) = latitude_min              'Minutes latitude
