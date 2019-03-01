@@ -25,9 +25,8 @@ for administration via appropriate apps:
 
 * For the datalogger, [LoggerLink](https://play.google.com/store/apps/details?id=com.campbellsci.loggerlink&pageId=none)
   provides complete control and data monitoring capabilities
-* For the CH<sub>4</sub> analyzer, [bVNC](https://play.google.com/store/apps/details?id=com.iiordanov.freebVNC)
-  (or another VNC app) allows the tablet to substitute for monitor/keyboard/mouse
-  hardware
+* For the CH<sub>4</sub> analyzer, [VNC Viewer](https://play.google.com/store/apps/details?id=com.realvnc.viewer.android&hl=en_US)
+  allows the tablet to substitute for monitor/keyboard/mouse hardware
 
 ## Diagrams
 
