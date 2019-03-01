@@ -4,7 +4,10 @@
 ' Copyright 2019 :: Patrick O'Keeffe,
 ' Laboratory for Atmospheric Research at Washington State University
 '
-' Contains adapted example code from Campbell Scientific product docs
+' Contains work derived from
+' TODO: Indoor Air quality (outdoor rack) code base
+' https://github.com/patricktokeeffe/wheatpile-emissions-scoping
+' and from Campbell Scientific CRBasic Editor documentation
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 ConstTable
@@ -27,9 +30,14 @@ Dim old_azimuth
 Const CSAT_SDM_ADDR = 3
 Const DperR = 180/3.14159 'unit conversion
 Const CSAT_VAZ = 90 'sensor-specific geometry indicator
+Const MBAR_PER_TORR = 1.3332237
+
+Const CH4_COM = ComU3
+Const CH4_BAUD = 19200
+Const CH4_FMT = 19 '8/n/1, TTL logic
+Const CH4_BUFF = 800
 
 Const GPS_COM_ADDR    = ComU1  'GPS serial input port #
-
 
 Dim CSATvals(5)
 Alias CSATvals(1) = csat3b_Ux
@@ -51,28 +59,34 @@ Units csat3b_boardHumidity = %
 Units csat3b_inclinePitch = degrees
 Units csat3b_inclineRoll = degrees
 
-'Dim li840a_config As String * 300
-'Dim li840a_resp As String * 32
-'Dim li840a_record As String * LI840A_REC
-'Dim li840a(6)
-'Alias li840a(1) = li840a_cell_T
-'Alias li840a(2) = li840a_cell_P
-'Alias li840a(3) = li840a_CO2
-'Alias li840a(4) = li840a_pwr_src
-'Alias li840a(5) = li840a_H2O
-'Alias li840a(6) = li840a_dewpoint
-'Units li840a_cell_T = degC
-'Units li840a_cell_P = kPa
-'Units li840a_CO2 = ppm
-'Units li840a_pwr_src = Vdc
-'Units li840a_H2O = ppth
-'Units li840a_dewpoint = degC
-'
-'Dim li840a_analog_CO2
-'Units li840a_analog_CO2 = ppm
-'
-'Dim dusttrak2_analog_pm
-'Units dusttrak2_analog_pm = mg/m^3
+Dim disable_ugga As Boolean
+Dim ch4_record As String * 400
+Dim ch4_year
+Dim ch4(25)
+'1: date (only year captured)   '2: time (only hour captured)
+Alias ch4(3)  = ugga_CH4        '4: CH4 s.d.
+Alias ch4(5)  = ugga_H2O        '6: H2O s.d.
+Alias ch4(7)  = ugga_CO2        '8: CO2 s.d.
+Alias ch4(9)  = ugga_CH4_dry    '10: CH4 dry s.d.
+Alias ch4(11) = ugga_CO2_dry    '12: CO2 dry s.d.
+Alias ch4(13) = ugga_gas_P      '14: gas P s.d.
+Alias ch4(15) = ugga_gas_T      '16: gas T s.d.
+Alias ch4(17) = ugga_self_T     '18: self T s.d.
+Alias ch4(19) = ugga_ringdown0  '20: ringdown #0 s.d.
+Alias ch4(21) = ugga_ringdown1  '22: ringdown #1 s.d.
+Alias ch4(23) = ugga_fit_flag   '24: MIU valve
+'25: MIU description
+Units ugga_CH4 = ppmv
+Units ugga_H2O = ppthv
+Units ugga_CO2 = ppmv
+Units ugga_CH4_dry = ppmv
+Units ugga_CO2_dry = ppmv
+Units ugga_gas_P = mbar
+Units ugga_gas_T = degC
+Units ugga_self_T = degC
+Units ugga_ringdown0 = usec
+Units ugga_ringdown1 = usec
+Units ugga_fit_flag = arb
 
 Dim nmea_sentence(2) As String * 90
 Dim gps_data(15)
@@ -121,6 +135,7 @@ Units std_wnd_dir = degrees
 Dim logger_batt
 Units logger_batt = Vdc
 
+Dim rtime(9) As Long
 
 DataTable(work,True,1)
   TableHide
@@ -133,10 +148,9 @@ DataTable(debug_,debug_on,1)
   Sample(1,instant_WD,IEEE4)
   'see the `tsfast` table for real-time 10hz data
   Sample(4,CSATmeta(1),IEEE4)
-'  Sample(1,li840a_record,String)
-'  Sample(6,li840a(1),IEEE4)
-'  Sample(1,li840a_analog_CO2,IEEE4)
-'  Sample(1,dusttrak2_analog_pm,IEEE4)
+  Sample(1,ch4_record,String)
+  Sample(25,ch4(1),IEEE4)
+  Sample(1,disable_ugga,Boolean)
   Sample(2,nmea_sentence(1),String)
   Sample(15,gps_data(1),IEEE4)
   Sample(1,logger_batt,FP2)
@@ -146,47 +160,29 @@ DataTable(tsdata,True,-1)
   DataInterval(0,100,mSec,10)
   CardOut(0,84600*10*DAYS_OF_DATA)
   Sample(5,CSATvals(1),IEEE4)
-    FieldNames("csat3b_Ux:wind vector streamwise component (into array)," & _
-               "csat3b_Uy:wind vector horizontal crosswise component," & _
-               "csat3b_Uz:wind vector vertical component," & _
-               "csat3b_sonicTemp:ultrasonic (virtual) temperature," & _
-               "csat3b_diag:sensor diagnostic word")
-EndTable
-'
-'DataTable(tsdata,True,-1)
-'  DataInterval(0,1,Sec,5)
-'  CardOut(0,86400*DAYS_OF_DATA)
-'  Sample(1,dusttrak2_analog_pm,FP2)
-'    FieldNames("dusttrak2_analog_pm:aerosol concentration")
-'  Sample(1,li840a_CO2,IEEE4)
-'    FieldNames("li840a_CO2:CO2 mixing ratio")
-'  Sample(1,li840a_H2O,IEEE4)
-'    FieldNames("li840a_H2O:H2O mixing ratio")
-'  Sample(1,li840a_analog_CO2,IEEE4)
-'    FieldNames("li840a_analog_CO2:CO2 mixing ratio (analog data)"
-'  Sample(1,instant_WS,FP2)
-'    FieldNames("instant_WS:instantaneous horizontal wind speed")
-'  Sample(1,instant_WD,FP2)
-'    FieldNames("instant_WD:instantaneous wind direction")
-'EndTable
-
-DataTable(minutely,True,-1)
-  DataInterval(0,1,Min,1)
-  CardOut(0,1440*DAYS_OF_DATA)
-'  Sample(1,dusttrak2_analog_pm,FP2)
-'    FieldNames("dusttrak2_analog_pm:aerosol concentration")
-'  Average(1,li840a_CO2,IEEE4,li840a_CO2=NAN)
-'    FieldNames("li840a_CO2:CO2 mixing ratio")
-'  Average(1,li840a_H2O,IEEE4,li840a_H2O=NAN)
-'    FieldNames("li840a_H2O:H2O mixing ratio")
-'  Average(1,li840a_cell_T,IEEE4,li840a_cell_T=NAN)
-'    FieldNames("li840a_cell_T:sample cell temperature")
-'  Average(1,li840a_cell_P,IEEE4,li840a_cell_P=NAN)
-'    FieldNames("li840a_cell_P:sample cell pressure")
-'  Average(1,li840a_dewpoint,IEEE4,li840a_dewpoint=NAN)
-'    FieldNames("li840a_dewpoint:H2O dewpoint")
-'  Average(1,li840a_pwr_src,IEEE4,li840a_pwr_src=NAN)
-'    FieldNames("li840a_pwr_src:power input")
+    FieldNames("csat3b_Ux:streamwise wind (into array)," & _
+               "csat3b_Uy:horizontal crosswind," & _
+               "csat3b_Uz:vertical wind," & _
+               "csat3b_sonicTemp:sonic (virtual) temperature," & _
+               "csat3b_diag:error code")
+  Sample(1,ugga_CH4,FP2)
+    FieldNames("ugga_CH4:methane")
+  Sample(1,ugga_H2O,IEEE4)
+    FieldNames("ugga_H2O:water vapor")
+  Sample(1,ugga_CO2,FP2)
+    FieldNames("ugga_CO2:carbon dioxide")
+  Sample(1,ugga_CH4_dry,FP2)
+    FieldNames("ugga_CH4_dry:methane (dry)")
+  Sample(1,ugga_CO2_dry,FP2)
+    FieldNames("ugga_CO2_dry:carbon dioxide (dry)")
+  Sample(1,ugga_gas_P,IEEE4)
+    FieldNames("ugga_gas_P:cell press")
+  Sample(1,ugga_gas_T,FP2)
+    FieldNames("ugga_gas_T:cell tmpr")
+  Sample(1,ugga_self_T,FP2)
+    FieldNames("ugga_self_T:sensor tmpr")
+  Sample(1,ugga_fit_flag,FP2)
+    FieldNames("ugga_fit_flag:QC code")
   Average(1,latitude_deg,FP2,latitude_deg=NAN)
     FieldNames("gps_latitude_deg:position latitude degrees component")
   Average(1,latitude_min,IEEE4,latitude_min=NAN)
@@ -195,6 +191,11 @@ DataTable(minutely,True,-1)
     FieldNames("gps_longitude_deg:position longitude degrees component")
   Average(1,longitude_min,IEEE4,longitude_min=NAN)
     FieldNames("gps_longitude_min:position longitude decimal minutes component")
+EndTable
+
+DataTable(minutely,True,-1)
+  DataInterval(0,1,Min,1)
+  CardOut(0,1440*DAYS_OF_DATA)
   Median(1,mag_variation,60,FP2,mag_variation=NAN)
     FieldNames("gps_mag_variation:position magnetic variation")
   Minimum(1,gps_ready,FP2,gps_ready=NAN,0)
@@ -207,7 +208,7 @@ DataTable(minutely,True,-1)
     FieldNames("csat3b_inclinePitch:sonic pitch incline angle")
   Average(1,csat3b_inclineRoll,FP2,csat3b_inclineRoll=NAN)
     FieldNames("csat3b_inclineRoll:sonic roll incline angle")
-  Sample(1,csat3b_azimuth,FP2)
+  Average(1,csat3b_azimuth,FP2,csat3b_azimuth=NAN)
     FieldNames("csat3b_azimuth:sonic orientation wrt north")
   Sample(3,work_out(1),IEEE4)
     FieldNames("csat3b_wnd_spd:mean horizontal wind speed," & _
@@ -218,19 +219,17 @@ DataTable(minutely,True,-1)
                "csat3b_Uy:wind vector horizontal crosswise component," & _
                "csat3b_Uz:wind vector vertical component," & _
                "csat3b_sonicTemp:ultrasonic (virtual) temperature," & _
-               "csat3b_diag:sensor diagnostic word")               
-'  Average(1,li840a_analog_CO2,IEEE4,li840a_analog_CO2=NAN)
-'    FieldNames("li840a_analog_CO2:CO2 mixing ratio (analog data)")
-'  Average(1,panel_tmpr,FP2,panel_tmpr=NAN)
-'    FieldNames("logger_panel_tmpr:logger wiring panel temperature")
+               "csat3b_diag:sensor diagnostic word")
+  Sample(1,logger_batt,FP2)
+    FieldNames("logger_batt:battery")
 EndTable
 
 
 DisplayMenu("Plume Study", -1)
   MenuItem("CSAT azimuth", csat3b_azimuth)
 '  SubMenu("View data")
-'    DisplayValue("PM, mg/m^3", dusttrak2_analog_pm)
-'    DisplayValue("CO2, ppm", li840a_CO2)
+    DisplayValue("CH4, ppm", ugga_CH4)
+    DisplayValue("CO2, ppm", ugga_CO2)
     DisplayValue("WS, m/s", instant_WS)
     DisplayValue("WD, deg", instant_WD)
     DisplayValue("Latitude", latitude_min)
@@ -240,16 +239,11 @@ DisplayMenu("Plume Study", -1)
 EndMenu
 
 '===========================================================================
-BeginProg
-'  SetStatus("StationName", "tracer-stationary") 'disabled by CardOut()
-'  li840a_config = ("<li840><cfg><outrate>1</outrate></cfg><rs232><co2>true</co2>" & _
-'        "<co2abs>false</co2abs><h2o>true</h2o><h2odewpoint>true</h2odewpoint>" & _
-'        "<h2oabs>false</h2oabs><celltemp>true</celltemp><cellpres>true</cellpres>" & _
-'        "<ivolt>true</ivolt><raw>false</raw><strip>true</strip></rs232></li840>")
-'  li840a_resp = ("<li840><ack>true</ack></li840>")
-'  SerialOpen(LI840A_COM,LI840A_BAUD,LI840A_FMT,0,LI840A_BUFF)
-'  SerialOut(LI840A_COM,li840a_config,li840a_resp,3,1)
-
+BeginProg  
+  SerialOpen(CH4_COM,CH4_BAUD,CH4_FMT,0,CH4_BUFF)
+  Move(ch4(1),25,NAN,1) 'ensure default "0" value isn't included
+  RealTime(rtime(1)) 'for msg validation
+  
   filehandle = FileOpen(SETTINGS_FILE,"rb",0) 'check for exists
   FileClose(filehandle)
   If (filehandle = 0) Then 'not found
@@ -267,25 +261,34 @@ BeginProg
       GetRecord(work_out(1),work,1)
       unit_wnd_dir = (360 + unit_wnd_dir + csat3b_azimuth) MOD 360
     EndIf
+
+    SerialIn(ch4_record,CH4_COM,5,&h0A,CH4_BUFF)
+    If (Len(ch4_record)) Then
+      SplitStr(ch4(1),ch4_record,", ",25,6)
+      ch4_year = ch4(1) 'convert string->float
+      'HACK!! - compare record year with logger timestamp to verify correctly parsed
+      disable_ugga = NOT(ch4_year = rtime(1))
+      ugga_gas_P *= MBAR_PER_TORR
+      ugga_H2O /= 1000 'ppmv -> ppthv
+    ElseIf (ch4_year = NAN) Then
+      'do nothing, UGGA vars already set to NAN
+    Else
+      Move(ch4(1),25,NAN,1)
+      ch4_year = NAN
+    EndIf
   NextScan
 
   SlowSequence
 	Scan(1,Sec,0,0)
     Battery(logger_batt)
 
-'    SerialIn(li840a_record,LI840A_COM,50,&h0A,LI840A_BUFF)
-'    If (Len(li840a_record)) Then
-'      SplitStr(li840a(1),li840a_record,"",6,0)
-'    Else
-'      Move(li840a(1),6,NAN,1)
-'    EndIf
+    'alt spot for CH4
 
     CSAT3BMonitor(CSATmeta(1),0,CSAT_SDM_ADDR)
     instant_WS = SQR(csat3b_Ux*csat3b_Ux + csat3b_Uy*csat3b_Uy)
     instant_WD = INT(ATN2(-1*csat3b_Ux,-1*csat3b_Uy)*DperR + CSAT_VAZ + _
                      csat3b_azimuth + 360) MOD 360  
 
-    'CallTable(tsdata)
     CallTable(minutely)
     CallTable(debug_)
     
