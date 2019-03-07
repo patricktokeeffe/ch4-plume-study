@@ -32,9 +32,9 @@ Const DperR = 180/3.14159 'unit conversion
 Const CSAT_VAZ = 90 'sensor-specific geometry indicator
 Const MBAR_PER_TORR = 1.3332237
 
-Const CH4_COM = ComU3
-Const CH4_BAUD = 19200
-Const CH4_FMT = 19 '8/n/1, TTL logic
+Const CH4_COM = ComU5
+Const CH4_BAUD = 115200
+Const CH4_FMT = 3 '8/n/1, RS232 logic
 Const CH4_BUFF = 800
 
 Const GPS_COM_ADDR    = ComU1  'GPS serial input port #
@@ -268,13 +268,9 @@ BeginProg
       ch4_year = ch4(1) 'convert string->float
       'HACK!! - compare record year with logger timestamp to verify correctly parsed
       disable_ugga = NOT(ch4_year = rtime(1))
-      ugga_gas_P *= MBAR_PER_TORR
-      ugga_H2O /= 1000 'ppmv -> ppthv
-    ElseIf (ch4_year = NAN) Then
-      'do nothing, UGGA vars already set to NAN
-    Else
-      Move(ch4(1),25,NAN,1)
-      ch4_year = NAN
+      'HINT use Round() to emulate FP2 data type
+      ugga_gas_P = Round(ugga_gas_P*MBAR_PER_TORR, 1)
+      ugga_H2O = Round(ugga_H2O/1000, 3) 'ppmv -> ppthv
     EndIf
   NextScan
 
