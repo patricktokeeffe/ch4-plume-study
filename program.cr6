@@ -288,7 +288,7 @@ BeginProg
     instant_WD = INT(ATN2(-1*csat3b_Ux,-1*csat3b_Uy)*DperR + CSAT_VAZ + _
                      csat3b_azimuth + 360) MOD 360  
 
-    CallTable(minutely)
+    CallTable(stats)
     CallTable(debug_)
     
     If (old_azimuth <> csat3b_azimuth) Then
