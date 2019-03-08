@@ -136,6 +136,7 @@ Dim logger_batt
 Units logger_batt = Vdc
 
 Dim rtime(9) As Long
+Dim OutStat As Boolean
 
 DataTable(work,True,1)
   TableHide
@@ -243,6 +244,7 @@ EndMenu
 BeginProg  
   SerialOpen(CH4_COM,CH4_BAUD,CH4_FMT,0,CH4_BUFF)
   Move(ch4(1),25,NAN,1) 'ensure default "0" value isn't included
+  Move(gps_data(1),15,NAN,1)
   RealTime(rtime(1)) 'for msg validation
   
   filehandle = FileOpen(SETTINGS_FILE,"rb",0) 'check for exists
