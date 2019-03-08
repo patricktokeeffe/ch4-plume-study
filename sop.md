@@ -79,7 +79,7 @@ value is used in the statistics table to track the position of the anemometer
 (useful for quality control) and to calculate the true wind direction. 
 
 > **After setting up or moving the sonic anemometer, always specify its new
-orientation in the program. See below: *To update the sonic azimuth***
+> orientation in the program. See below: *To update the sonic azimuth***
 
 ### Tracer Release
 
@@ -88,8 +88,8 @@ Next, setup the methane release hardware:
 1. Remove the protective cap from the external delivery tube.
 2. Lift the left side of the upper tray to access the methane bottle valve. Open the valve counter-clockwise (CCW) **one half turn** to supply gas to the regulator.
 3. Verify the regulator indicates the correct pressures:
-	* Left side (delivery): approximately 15 psig
-	* Right side (inlet): between 15 and 2000 psig
+    * Left side (delivery): approximately 15 psig
+    * Right side (inlet): between 15 and 2000 psig
 4. Reach through the upper tray slot and turn the power supply *on*. The voltage indicator will display a voltage and the flow controller will turn on. 
     > The **minimum operating voltage is 12.0** Vdc. See *Battery Levels* below for more details.
 5. Verify the release rate displayed by the flow controller matches your expectations. To program a new setpoint, see below under *Operations*.
@@ -107,31 +107,31 @@ To shut down the methane release hardware:
 ### To turn devices ON
 
 * Data system:
-	* Turn the battery regulator power switch to **ON**
-	* The 'power' and 'WiFi' indicators will flash to indicate operation
+    * Turn the battery regulator power switch to **ON**
+    * The 'power' and 'WiFi' indicators will flash to indicate operation
 * Tracer release:
-	* Turn the battery regulator power switch (lower level) to **ON**
-	* The battery voltage display and mass flow controller will both turn on
+    * Turn the battery regulator power switch (lower level) to **ON**
+    * The battery voltage display and mass flow controller will both turn on
 * Methane analyzer:
-	* Flip the power switch to **ON** (green light turns on)
-	* Wait up to **2 minutes** for data system routines to engage
-	* The analyzer is running when the pump turns on
+    * Flip the power switch to **ON** (green light turns on)
+    * Wait up to **2 minutes** for data system routines to engage
+    * The analyzer is running when the pump turns on
 
 ### To turn devices OFF
 
 * Data system:
-	* Turn the battery regulator power switch to **OFF**
-	* Verify the LED indicators no longer light up
+    * Turn the battery regulator power switch to **OFF**
+    * Verify the LED indicators no longer light up
 * Tracer release:
-	* De-pressurize the flow path anytime the device is not in use
-	* Shut off the gas supply using the bottle valve
-	* Turn the battery regulator power switch to **OFF**
-	* Verify the bottle is closed after use
+    * De-pressurize the flow path anytime the device is not in use
+    * Shut off the gas supply using the bottle valve
+    * Turn the battery regulator power switch to **OFF**
+    * Verify the bottle is closed after use
 * Methane analyzer:
-	* Connect to the gas analyzer's graphical interface via wifi (see *To view the gas analyzer interface* below)
-	* Shut down the data acquisition software using the **EXIT** button
-	* Wait for **1 minute** after being disconnected to allow the operating system to shutdown
-	* Finally, turn the power switch **OFF**
+    * Connect to the gas analyzer's graphical interface via wifi (see *To view the gas analyzer interface* below)
+    * Shut down the data acquisition software using the **EXIT** button
+    * Wait for **1 minute** after being disconnected to allow the operating system to shutdown
+    * Finally, turn the power switch **OFF**
 
 ### To monitor battery voltage
 
@@ -140,12 +140,12 @@ experiment must stop! Check battery voltages frequently to ensure there is
 sufficient power (>=12.0) to safely shutdown the analyzer.**
 
 * Data system:
-	* view field `logger_batt` in the *Public* or  *_debug* tables for current value
-	* the same field is viewable in the *stats* table, but value represents 1-minute average
+    * view field `logger_batt` in the *Public* or  *_debug* tables for current value
+    * the same field is viewable in the *stats* table, but value represents 1-minute average
 * Tracer release:
-	* check voltmeter display adjacent to power switch
+    * check voltmeter display adjacent to power switch
 * Methane analyzer:
-	* press gray button on voltmeter adapter to see current voltage
+    * press gray button on voltmeter adapter to see current voltage
 
 ### To recharge the batteries
 
@@ -155,19 +155,19 @@ to begin charging and perform reverse procedure when charging finishes.
 > *Do not charge the batteries in a car, home or other enclosed space.*
 
 * Data system:
-	* verify the system is off
-	* plug the 3-prong cord of the AC power adapter into a power source
-	* the red LED illuminates to indicate charging
+    * verify the system is off
+    * plug the 3-prong cord of the AC power adapter into a power source
+    * the red LED illuminates to indicate charging
 * Tracer release:
-	* verify the system is off
-	* plug the 24Vdc power adapter into a power source
-	* the red LED illuminates to indicate charging
+    * verify the system is off
+    * plug the 24Vdc power adapter into a power source
+    * the red LED illuminates to indicate charging
 * Methane analyzer battery:
-	* disconnect the gas analyzer from the battery (use caps to keep terminals clean)
-	* disconnect the voltmeter from accessory jack
-	* with the DieBold battery charger unplugged, connect output to the battery's accessory jack 
-	* plug the battery charger into a power source
-	* wait for orange charging light to turn on (turns green when finished)
+    * disconnect the gas analyzer from the battery (use caps to keep terminals clean)
+    * disconnect the voltmeter from accessory jack
+    * with the DieBold battery charger unplugged, connect output to the battery's accessory jack 
+    * plug the battery charger into a power source
+    * wait for orange charging light to turn on (turns green when finished)
 
 ### To change the release setpoint
 
@@ -195,18 +195,18 @@ this diagram (image courtesy *Campbell Scientific CSAT3B User Manual*).
 * Launch the **VNC Viewer** app
 * Select a saved shortcut to connect to the analyzer. (*Multiple entries exist
   to accommodate the analyzer's dynamic IP address. If one fails, try another.*) 
-	* Press anywhere on screen and drag your finger to manipulate the mouse cursor
-	* Press once to send a mouse left-click
-	* Press and hold to send a mouse right-click
+    * Press anywhere on screen and drag your finger to manipulate the mouse cursor
+    * Press once to send a mouse left-click
+    * Press and hold to send a mouse right-click
 
 ### To monitor data in real-time
 
 * Connect the tablet to the datalogger's wifi network (`CR6_xxxx`)
 * Launch the **LoggerLink** app
 * Select the CR6 datalogger entry to connect to the logger
-	* Use the *Current* tab to monitor numeric values in a list format.  
-	* Use the *Historical* tab to select data for time-series plotting. 
-	* Use the *Collect* tab to download records and view data in a table.
+    * Use the *Current* tab to monitor numeric values in a list format.  
+    * Use the *Historical* tab to select data for time-series plotting. 
+    * Use the *Collect* tab to download records and view data in a table.
 
 ### To access data files
 
