@@ -1,6 +1,7 @@
+
 # Methane (CH<sub>4</sub>) Tracer Study
 
-Source code and documentation for methane tracer release proof-of-concept study.
+Source code and documentation for methane tracer release plume dispersion study.
 There are two main components:
 
 * A stationary release site with
@@ -15,7 +16,7 @@ There are two main components:
     * GPS receiver ([GPS16X-HVS; Garmin](https://www.campbellsci.com/gps16x-hvs))
     * Programmable datalogger ([CR6; Campbell Scientific](http://www.campbellsci.com/cr6))
 
-The mobile station can be located up to ~33m (130ft) from the stationary release
+The mobile station can be located up to 40m (130ft) from the stationary release
 site. Position data is logged in real-time to relieve the operator of tracking
 sampling location. 
 
@@ -27,6 +28,12 @@ for administration via appropriate apps:
   provides complete control and data monitoring capabilities
 * For the CH<sub>4</sub> analyzer, [VNC Viewer](https://play.google.com/store/apps/details?id=com.realvnc.viewer.android&hl=en_US)
   allows the tablet to substitute for monitor/keyboard/mouse hardware
+
+
+## Operating Procedures
+
+See [here](sop.md).
+
 
 ## Diagrams
 
@@ -47,13 +54,25 @@ for administration via appropriate apps:
 ![Analyzer setup diagram](img/analyzer-setup.png)
 
 
-
 ## Data stuff
 
 Raw measurements are stored at 10Hz and, where appropriate, aggregated to 1-min 
 values. Data is retained to microSD card memory; there is no telemetry component.
 
+Two data tables files are generated each time the datalogger is started or after
+12 hours of runtime. Runs are distinguished by a numeric filename suffix. 
 
+* `ch4plume-tsdata`: raw time-series data recorded at 10Hz
+* `ch4plume-stats`: one-minute aggregations of select values; more for quality control
+
+Field names (columns) contain a prefix indicating the data source. Refer to
+comments for a brief description, or the relevant instrument manual for more
+details on a particular field.
+
+* `csat3b`: sonic anemometer
+* `ugga`: methane analyzer
+* `gps`: GPS receiver
+* `logger`: data logger
 
 ## References
 
@@ -72,4 +91,8 @@ values. Data is retained to microSD card memory; there is no telemetry component
 
 * Campbell Scientific, Inc. *GPS16X-HVS GPS Receiver Instruction Manual.*
   Revision 2017 Oct. Online: <https://s.campbellsci.com/documents/us/manuals/gps16x-hvs.pdf>
+
+* Los Gatos Research. *Ultra-Portable Greenhouse Gas Analyzer (UGGA) User Manual
+  Model 915-0011.* Revision 2016 Jul 22. 
+  > *By manufacturer request only - see hardcopy or Lab Manager for pdf.*
 
