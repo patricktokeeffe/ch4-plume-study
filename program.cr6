@@ -154,11 +154,12 @@ DataTable(debug_,debug_on,1)
   Sample(2,nmea_sentence(1),String)
   Sample(15,gps_data(1),IEEE4)
   Sample(1,logger_batt,FP2)
+  Sample(1,OutStat,FP2)
 EndTable
 
 DataTable(tsdata,True,-1)
   DataInterval(0,100,mSec,10)
-  CardOut(0,84600*10*DAYS_OF_DATA)
+  TableFile("CRD:ch4plume-tsdata",64,-2,0,12,Hr,OutStat,0)
   Sample(5,CSATvals(1),IEEE4)
     FieldNames("csat3b_Ux:streamwise wind (into array)," & _
                "csat3b_Uy:horizontal crosswind," & _
@@ -193,9 +194,9 @@ DataTable(tsdata,True,-1)
     FieldNames("gps_longitude_min:position longitude decimal minutes component")
 EndTable
 
-DataTable(minutely,True,-1)
+DataTable(stats,True,-1)
   DataInterval(0,1,Min,1)
-  CardOut(0,1440*DAYS_OF_DATA)
+  TableFile("CRD:ch4plume-stats",64,-2,0,12,Hr,OutStat,0)
   Median(1,mag_variation,60,FP2,mag_variation=NAN)
     FieldNames("gps_mag_variation:position magnetic variation")
   Minimum(1,gps_ready,FP2,gps_ready=NAN,0)
