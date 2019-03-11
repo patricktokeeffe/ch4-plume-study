@@ -132,7 +132,7 @@ Units wnd_spd = m/s
 Units unit_wnd_dir = degreesEofN
 Units std_wnd_dir = degrees
 
-Dim logger_batt
+Public logger_batt
 Units logger_batt = Vdc
 
 Dim rtime(9) As Long
