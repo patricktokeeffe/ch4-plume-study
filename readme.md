@@ -7,7 +7,7 @@ There are two main components:
 * A stationary release site with
     * 3D ultrasonic anemometer ([CSAT3B; Campbell Scientific](https://www.campbellsci.com/csat3b))
     * Regulated point-release of CH<sub>4</sub>:
-        * 99.0% (commercial purity) methane ([Matheson Tri-Gas](http://www.mathesontrigas.com/))
+        * 99.0% (commercial purity) methane ([Matheson Tri-Gas](https://www.mathesongas.com/pdfs/products/Methane-Pure-Gas.pdf))
         * high-purity, dual-stage regulator with flash arrestor
         * 5 SLPM mass flow controller ([Alicat Scientific](https://www.alicat.com/product/gas-mass-flow-controllers/))
           with flash arrestor
